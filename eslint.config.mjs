@@ -49,6 +49,7 @@ export default [{
 
         indent: ["error", 2, {
             ignoredNodes: ["PropertyDefinition"],
+            SwitchCase: 1
         }],
 
         "linebreak-style": ["error", "unix"],

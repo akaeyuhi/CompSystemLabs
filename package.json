@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node dist/lab1/src/index.js",
-    "start:dev": "tsc --watch && nodemon dist/lab1/src/index.js"
+    "start": "tsc && node dist/lab2/src/index.js",
+    "start:dev": "tsc --watch && nodemon dist/lab2/src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +18,11 @@
     "eslint-plugin-prettier": "^5.2.1",
     "nodemon": "^3.1.7",
     "prettier": "3.3.3"
+  },
+  "dependencies": {
+    "@types/graphlib": "^2.1.12",
+    "@types/graphlib-dot": "^0.6.4",
+    "graphlib": "^2.1.8",
+    "graphlib-dot": "^0.6.4"
   }
 }
