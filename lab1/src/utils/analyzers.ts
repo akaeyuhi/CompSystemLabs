@@ -250,5 +250,5 @@ export const analyzeExpression = async (tokens: Token[]) => {
     .map(result => result.valid)
     .every(bool => bool);
 
-  return { validness, errors };
+  return { validness, errors, tokens };
 };

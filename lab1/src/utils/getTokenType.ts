@@ -24,13 +24,11 @@ export function getTokenType(token: string): TokenType {
   return TokenType.UNKNOWN;
 }
 
-// Функція для перевірки на математичну функцію (тригонометричні, log тощо)
 function isMathFunction(token: string): boolean {
   const mathFunctions = ['sin', 'cos', 'tan', 'log', 'sqrt', 'exp', 'pow'];
   return mathFunctions.includes(token);
 }
 
-// Функція для перевірки на математичну константу
 function isMathConstant(token: string): boolean {
   return token in MATH_CONSTANTS;
 }

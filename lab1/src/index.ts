@@ -1,7 +1,6 @@
 import { tokenize } from './utils/tokenize';
 import { parse } from './utils/parser';
 
-// Основна асинхронна функція для аналізу виразу
 async function parseExpression(expressions: string[]) {
   for (const expression of expressions) {
     console.log(`Аналіз виразу: ${expression}`);
