@@ -35,8 +35,8 @@ export async function optimizeExpression(
       const next = tokens[i + 1];
       if (next && next.type === 'NUMBER' && next.value === '1') {
         optimizations.push(
-          `Multiplication/division by 1: Removed operation "${current.value}"` +
-            +`at position ${current.position}`,
+          `Multiplication/division by 1: Removed operation "${current.value}" ` +
+            `at position ${current.position}`,
         );
         i++; // Skip the '1'
         continue;
@@ -53,7 +53,7 @@ export async function optimizeExpression(
           position: current.position,
         });
         optimizations.push(
-          `Multiplication by 0: Replaced expression with 0 at position ${current.position}`,
+          `Multiplication by 0: Replaced expression with 0 at position ${current.position} `,
         );
         i++; // Skip the '0'
         continue;
@@ -68,8 +68,8 @@ export async function optimizeExpression(
       const next = tokens[i + 1];
       if (next && next.type === 'NUMBER' && next.value === '0') {
         optimizations.push(
-          `Addition/subtraction of 0: Removed operation "${current.value}"` +
-            +`at position ${current.position}`,
+          `Addition/subtraction of 0: Removed operation "${current.value}" ` +
+            `at position ${current.position}`,
         );
         i++; // Skip the operation and '0'
         continue;
@@ -132,8 +132,8 @@ export async function optimizeExpression(
             position: current.position,
           });
           optimizations.push(
-            `Constant folding: Replaced "${current.value} ${next.value} ${afterNext.value}"` +
-              +` with "${result}" at position ${current.position}`,
+            `Constant folding: Replaced "${current.value} ${next.value} ${afterNext.value}" ` +
+              `with "${result}" at position ${current.position}`,
           );
           i += 2; // Skip the next two tokens (operator and right operand)
           continue;

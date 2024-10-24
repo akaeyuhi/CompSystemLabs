@@ -3,6 +3,7 @@ import { analyzeExpression } from './optimization/analyzers';
 import { ParseError } from './errors/parseError';
 import { optimizeExpression } from './optimization/optimize';
 import { infixToPostfix } from './tree/postfixConversion';
+import { processParentheses } from './optimization/processParentheses';
 
 const sortErrors = (a: ParseError, b: ParseError) =>
   Number(a.message.split(' ')[1].replace(':', '')) -
@@ -13,7 +14,8 @@ export async function parse(tokens: Token[]) {
   const { optimizedTokens, optimizations } = await optimizeExpression(
     results.tokens,
   );
-  const postfixTokens = await infixToPostfix(optimizedTokens);
+  const processed = await processParentheses(optimizedTokens);
+  const postfixTokens = await infixToPostfix(processed);
 
   if (!results.validness && results.errors.length) {
     results.errors.sort(sortErrors);

@@ -27,15 +27,3 @@ export async function buildExpressionTree(
 
   return stack.pop() || null;
 }
-
-export async function buildParallelTree(
-  node: TreeNode | null,
-): Promise<string[]> {
-  if (!node) return [];
-
-  const leftOps = await buildParallelTree(node.left ?? null);
-  const rightOps = await buildParallelTree(node.right ?? null);
-
-  // Combine operations of the same depth
-  return [...leftOps, node.value, ...rightOps];
-}
