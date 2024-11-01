@@ -26,17 +26,19 @@ const invalidStartCheck = async (tokens: Token[]) => {
     const fistSymbol = expression.slice(0, 1);
     result.errors.push(
       new ParseError(
-        `Позиція 0: Недопустимий символ на початку арифметичного виразу: ${fistSymbol}`,
+        `Position 0: Invalid character at the start of the arithmetic expression: ${fistSymbol}`,
       ),
     );
   }
   if (expression.includes('=')) {
     if (expression.indexOf('=') !== expression.lastIndexOf('=')) {
-      result.errors.push(new ParseError(`Два або більше знаків = в виразі`));
+      result.errors.push(
+        new ParseError(`Two or more = signs in the expression`),
+      );
     }
     if (expression.indexOf('=') !== 1) {
       result.errors.push(
-        new ParseError(`Знак = в виразі стоїть в неправильному місці.`),
+        new ParseError(`The = sign is in the wrong place in the expression.`),
       );
     }
   }
@@ -50,7 +52,7 @@ const unknownTokenCheck = async (tokens: Token[]) => {
     if (token.type === TokenType.UNKNOWN) {
       const result = new AnalyzeResult(token);
       result.errors.push(
-        new ParseError(`Позиція ${token.position}: невідомий токен`),
+        new ParseError(`Position ${token.position}: Unknown token`),
       );
       result.valid = false;
       results.push(result);
@@ -68,7 +70,9 @@ const parenthesesCheck = async (tokens: Token[]) => {
     } else if (token.value === ')') {
       if (stack.length === 0) {
         result.errors.push(
-          new ParseError(`Позиція ${token.position}: зайва закриваюча дужка`),
+          new ParseError(
+            `Position ${token.position}: Extra closing parenthesis`,
+          ),
         );
       } else {
         stack.pop();
@@ -80,7 +84,7 @@ const parenthesesCheck = async (tokens: Token[]) => {
     if (openBracket !== undefined) {
       result.errors.push(
         new ParseError(
-          `Позиція ${openBracket.position}: зайва відкриваюча дужка`,
+          `Position ${openBracket.position}: Extra opening parenthesis`,
         ),
       );
     }
@@ -97,7 +101,7 @@ const doubleOperatorsCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${next.position}: оператор ${next.value} після іншого оператора`,
+        `Position ${next.position}: Operator ${next.value} after another operator`,
       ),
     );
     result.valid = false;
@@ -112,7 +116,7 @@ const unnecessaryDotCheck = async (current: Token) => {
   if (current.type === TokenType.NUMBER && current.value.startsWith('.')) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: зайва крапка в десятковому виразі`,
+        `Position ${current.position}: Unnecessary dot in decimal expression`,
       ),
     );
     result.valid = false;
@@ -133,7 +137,7 @@ const endOperatorCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: кінець виразу після оператора, очікувалась змінна`,
+        `Position ${current.position}: Expression ends with an operator, expected a variable`,
       ),
     );
     result.valid = false;
@@ -153,7 +157,7 @@ const parenAfterOperatorCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: закриваюча дужка після оператора, очікувалась змінна`,
+        `Position ${current.position}: Closing parenthesis after an operator, expected a variable`,
       ),
     );
     result.valid = false;
@@ -173,7 +177,7 @@ const closingParenthesesCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: недопустима дужка після оператора, очікувалась змінна`,
+        `Position ${current.position}: Invalid parenthesis after operator, expected a variable`,
       ),
     );
     result.valid = false;
@@ -192,7 +196,7 @@ const openParenthesesCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: недопустимий знак після дужки, очікувалась змінна`,
+        `Position ${current.position}: Invalid character after parenthesis, expected a variable`,
       ),
     );
     result.valid = false;
