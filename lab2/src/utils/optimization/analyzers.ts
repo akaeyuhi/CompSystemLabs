@@ -19,6 +19,31 @@ const isVariable = (token: Token | undefined) =>
     token.type === TokenType.CONSTANT ||
     token.type === TokenType.FUNCTION);
 
+const invalidStartCheck = async (tokens: Token[]) => {
+  const expression = tokens.map(token => token.value).join('');
+  const result = new AnalyzeResult();
+  if (expression.match(/^[/*\\)^]/g)) {
+    const fistSymbol = expression.slice(0, 1);
+    result.errors.push(
+      new ParseError(
+        `Позиція 0: Недопустимий символ на початку арифметичного виразу: ${fistSymbol}`,
+      ),
+    );
+  }
+  if (expression.includes('=')) {
+    if (expression.indexOf('=') !== expression.lastIndexOf('=')) {
+      result.errors.push(new ParseError(`Два або більше знаків = в виразі`));
+    }
+    if (expression.indexOf('=') !== 1) {
+      result.errors.push(
+        new ParseError(`Знак = в виразі стоїть в неправильному місці.`),
+      );
+    }
+  }
+  if (result.errors.length) result.valid = false;
+  return result;
+};
+
 const unknownTokenCheck = async (tokens: Token[]) => {
   const results = [];
   for (const token of tokens) {
@@ -55,7 +80,7 @@ const parenthesesCheck = async (tokens: Token[]) => {
     if (openBracket !== undefined) {
       result.errors.push(
         new ParseError(
-          `Позиція ${openBracket.position}: зайва закриваюча дужка`,
+          `Позиція ${openBracket.position}: зайва відкриваюча дужка`,
         ),
       );
     }
@@ -148,7 +173,7 @@ const closingParenthesesCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: закриваюча дужка після оператора, очікувалась змінна`,
+        `Позиція ${current.position}: недопустима дужка після оператора, очікувалась змінна`,
       ),
     );
     result.valid = false;
@@ -214,6 +239,7 @@ const analyzeTokens = async (tokens: Token[]) => {
 
 export const analyzeExpression = async (tokens: Token[]) => {
   const results = await Promise.all([
+    Promise.resolve(invalidStartCheck(tokens)),
     Promise.resolve(unknownTokenCheck(tokens)),
     Promise.resolve(parenthesesCheck(tokens)),
     Promise.resolve(analyzeTokens(tokens)),

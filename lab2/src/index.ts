@@ -13,6 +13,13 @@ async function parseExpression(expressions: string[]) {
       if (results.validness) {
         //const calculationResult = await calculatePostfix(postfixTokens);
         const expressionTree = await buildExpressionTree(postfixTokens);
+        // const parallelTree = await buildParallelTree(expressionTree);
+        // console.dir(parallelTree, {
+        //   depth: 5,
+        // });
+        // console.dir(expressionTree, {
+        //   depth: 5,
+        // });
         // console.log('Calculated expression: ', calculationResult);
         const graph = outputTreeGraph(expressionTree);
         await convertDotToPng(
@@ -30,12 +37,11 @@ async function parseExpression(expressions: string[]) {
 const testExpressions = [
   /* Valid */
   'a+(t*5.81 - 12)',
-  // eslint-disable-next-line max-len
-  'a+b*(c*cos(t-a*x*0)-d*sin(t+a*x)/(4.81*k-q*t))/(d*cos(t+a*y/f+(5.616*x-t))+c*sin(t-a*y*(u-v*i)))',
+  'a+b*(c*(t-a*x*0)-d*(t+a*x)/(4.81*k-q*t))/(d*(t+a*y/f+(5.616*x-t))+c*(t-a*y*(u-v*i)))',
   'a+b*(c-0/d)/e',
   '3+5*(2-8)/4',
-  '2.5*(3+4.81/k-q+1*t)/(cos(t+a*y/f+(5.616*x-t))+c*sin(t-a*y))',
-  'a+b^(c*d/1)-sqrt(x/(y*z*1))',
+  '2.5*(3+4.81/k-q+1*t)/((t+a*y/f+(5.616*x-t))+c*(t-a*y))',
+  'a+b^(c*d/1)-(x/(y*z*1))',
   // /* Not valid */
   // 'x*(y+z)-sin()/(cos(b+y)*tan(c/x))',
   // '3+*(2-8)',

@@ -80,7 +80,7 @@ const parenthesesCheck = async (tokens: Token[]) => {
     if (openBracket !== undefined) {
       result.errors.push(
         new ParseError(
-          `Позиція ${openBracket.position}: зайва закриваюча дужка`,
+          `Позиція ${openBracket.position}: зайва відкриваюча дужка`,
         ),
       );
     }
@@ -173,7 +173,7 @@ const closingParenthesesCheck = async (current: Token, next: Token) => {
   ) {
     result.errors.push(
       new ParseError(
-        `Позиція ${current.position}: закриваюча дужка після оператора, очікувалась змінна`,
+        `Позиція ${current.position}: недопустима дужка після оператора, очікувалась змінна`,
       ),
     );
     result.valid = false;
