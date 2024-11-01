@@ -34,5 +34,8 @@ const testExpressions = [
   'a+b*(c-)/e',
   '2.5*(3+4.81..2/k-q*t)',
   'a+b/ - 4.81/(x*y)',
+  'x*(y+z-sin(a*x)/(cos(b+y',
+  'cos(a)*sin(b)-)3/8(/(1+d)',
+  'x*(y+z)-sin(a*x)/(cos+(b+y)*tan(c/x))',
 ];
 (async () => await parseExpression(testExpressions))();
