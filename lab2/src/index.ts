@@ -11,16 +11,10 @@ async function parseExpression(expressions: string[]) {
       const tokens = await tokenize(expression); // tokenization
       const { results, postfixTokens } = await parse(tokens);
       if (results.validness) {
-        //const calculationResult = await calculatePostfix(postfixTokens);
         const expressionTree = await buildExpressionTree(postfixTokens);
-        // const parallelTree = await buildParallelTree(expressionTree);
-        // console.dir(parallelTree, {
+        // console.dir(expressionTree, {
         //   depth: 5,
         // });
-        console.dir(expressionTree, {
-          depth: 5,
-        });
-        // console.log('Calculated expression: ', calculationResult);
         const graph = outputTreeGraph(expressionTree);
         await convertDotToPng(
           graph!,
@@ -37,11 +31,16 @@ async function parseExpression(expressions: string[]) {
 const testExpressions = [
   /* Valid */
   'a+(t*5.81 - 12)',
-  'a+b*(c*(t-a*x*0)-d*(t+a*x)/(4.81*k-q*t))/(d*(t+a*y/f+(5.616*x-t))+c*(t-a*y*(u-v*i)))',
-  'a+b*(c-0/d)/e',
-  '3+5*(2-8)/4',
-  '2.5*(3+4.81/k-q+1*t)/((t+a*y/f+(5.616*x-t))+c*(t-a*y))',
-  'a+b^(c*d/1)-(x/(y*z*1))',
+  // 'a+b*(c*(t-a*x*0)-d*(t+a*x)/(4.81*k-q*t))/(d*(t+a*y/f+(5.616*x-t))+c*(t-a*y*(u-v*i)))',
+  // 'a+b*(c-0/d)/e',
+  // '3+5*(2-8)/4',
+  // '2.5*(3+4.81/k-q+1*t)/(t+a*y/f+(5.616*x-t)+c*(t-a*y))',
+  // 'a+b^(c*d/1)-(x/(y*z*1))',
+  //'0/b/c/v/d/e/g*t-v-b-d-s-e-g',
+  //'a*(b+(c+d)/e)+b*0+5+4-1*n',
+  //'0+b*0+0*a+a*b+1',
+  //'2+3+4+5+6+7+8*s-p',
+  //'(a+b+5)*2+0*(0/5-(6+3+d))',
   // /* Not valid */
   // 'x*(y+z)-sin()/(cos(b+y)*tan(c/x))',
   // '3+*(2-8)',

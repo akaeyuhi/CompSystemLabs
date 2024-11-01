@@ -8,7 +8,7 @@ export type Token = {
 
 export async function tokenize(expression: string): Promise<Token[]> {
   const tokens: Token[] = [];
-  const tokenRegex = /([a-zA-Z]\w*)|([0-9]*\.?[0-9]+)|([+\-*/^()])|(\s+)/g;
+  const tokenRegex = /([a-zA-Z]\w*)|([0-9]*[.,]?[0-9]+)|([+\-*/^()])|(\s+)/g;
   let match;
 
   while ((match = tokenRegex.exec(expression)) !== null) {

@@ -163,6 +163,29 @@ const parenAfterOperatorCheck = async (current: Token, next: Token) => {
   }
 };
 
+const tokenWithoutOperation = async (current: Token, next: Token) => {
+  const result = new AnalyzeResult(current);
+  if (
+    (current.type === TokenType.NUMBER ||
+      current.type === TokenType.VARIABLE ||
+      (current.type === TokenType.PARENTHESIS && current.value === '(')) &&
+    next &&
+    (next.type === TokenType.NUMBER ||
+      next.type === TokenType.VARIABLE ||
+      (next.type === TokenType.PARENTHESIS && next.value === ')'))
+  ) {
+    result.errors.push(
+      new ParseError(
+        `Позиція ${current.position}: невизначена операція між двома змінними`,
+      ),
+    );
+    result.valid = false;
+    return result;
+  } else {
+    return result;
+  }
+};
+
 const closingParenthesesCheck = async (current: Token, next: Token) => {
   const result = new AnalyzeResult(current);
   if (
@@ -209,6 +232,7 @@ const analyzeToken = async (token: Token, next: Token) => {
     openParenthesesCheck,
     parenAfterOperatorCheck,
     closingParenthesesCheck,
+    tokenWithoutOperation,
     unnecessaryDotCheck,
   ];
 

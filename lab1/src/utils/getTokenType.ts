@@ -17,7 +17,7 @@ export function getTokenType(token: string): TokenType {
   if (/^[a-zA-Z]\w*$/.test(token) && !isMathFunction(token))
     return TokenType.VARIABLE;
   if (isMathConstant(token)) return TokenType.CONSTANT;
-  if (/^[0-9]*\.?[0-9]+$/.test(token)) return TokenType.NUMBER;
+  if (/^[0-9]*[.,]?[0-9]+$/.test(token)) return TokenType.NUMBER;
   if (/^[+\-*^/]$/.test(token)) return TokenType.OPERATOR;
   if (/^[()]$/.test(token)) return TokenType.PARENTHESIS;
   if (isMathFunction(token)) return TokenType.FUNCTION;
