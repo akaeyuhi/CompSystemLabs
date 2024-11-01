@@ -17,9 +17,9 @@ async function parseExpression(expressions: string[]) {
         // console.dir(parallelTree, {
         //   depth: 5,
         // });
-        // console.dir(expressionTree, {
-        //   depth: 5,
-        // });
+        console.dir(expressionTree, {
+          depth: 5,
+        });
         // console.log('Calculated expression: ', calculationResult);
         const graph = outputTreeGraph(expressionTree);
         await convertDotToPng(

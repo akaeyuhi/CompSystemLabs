@@ -28,6 +28,7 @@ const testExpressions = [
   'y=3+5*(2-8)/4',
   '2.5*(3+4.81/k-q*t)/(cos(t+a*y/f+(5.616*x-t))+c*sin(t-a*y))',
   'a+b^(c*d)-sqrt(x/(y*z))',
+  'x*(y+z)-sin(a*x)/(cos+(b+y)*tan(c/x))',
   /* Not valid */
   'x*(y+z)-sin()/(cos(b+y)*tan(c/x))',
   '3+*(2-8)',
@@ -36,6 +37,5 @@ const testExpressions = [
   'a+b/ - 4.81/(x*y)',
   'x*(y+z-sin(a*x)/(cos(b+y',
   'cos(a)*sin(b)-)3/8(/(1+d)',
-  'x*(y+z)-sin(a*x)/(cos+(b+y)*tan(c/x))',
 ];
 (async () => await parseExpression(testExpressions))();

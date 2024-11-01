@@ -13,18 +13,24 @@ export function convertDotToPng(
   return new Promise(async (resolve, reject) => {
     const dotFormat = dot.write(graph);
 
-    if (!existsSync(path.join(__dirname, `trees`)))
-      await fs.mkdir(path.join(__dirname, `trees`));
+    if (!existsSync(path.join(__dirname, `../../trees`)))
+      await fs.mkdir(path.join(__dirname, `../../trees`));
 
     // Save the DOT file to the file system
-    const dotFilePath = path.join(__dirname, `trees/${outputFilename}.dot`);
+    const dotFilePath = path.join(
+      __dirname,
+      `../../trees/${outputFilename}.dot`,
+    );
     try {
       await fs.writeFile(dotFilePath, dotFormat);
     } catch (err) {
       return reject(err);
     }
     // Use Graphviz 'dot' command to convert DOT to PNG
-    const pngFilePath = path.join(__dirname, `trees/${outputFilename}.png`);
+    const pngFilePath = path.join(
+      __dirname,
+      `../../trees/${outputFilename}.png`,
+    );
     exec(
       `dot -Tpng ${dotFilePath} -o ${pngFilePath}`,
       (err, stdout, stderr) => {
