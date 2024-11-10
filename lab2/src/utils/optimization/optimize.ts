@@ -3,6 +3,24 @@ import { Token } from '../tokenization/tokenize';
 export async function optimizeExpression(
   tokens: Token[],
 ): Promise<{ optimizedTokens: Token[]; optimizations: string[] }> {
+  let optimizedTokens = [...tokens];
+  const optimizations: string[] = [];
+  let newOptimizations: string[];
+
+  do {
+    newOptimizations = [];
+    const result = await optimizeSinglePass(optimizedTokens);
+    optimizedTokens = result.optimizedTokens;
+    newOptimizations.push(...result.optimizations);
+    optimizations.push(...newOptimizations);
+  } while (newOptimizations.length > 0);
+
+  return { optimizedTokens, optimizations };
+}
+
+async function optimizeSinglePass(
+  tokens: Token[],
+): Promise<{ optimizedTokens: Token[]; optimizations: string[] }> {
   const optimizedTokens: Token[] = [];
   const optimizations: string[] = [];
 
@@ -44,9 +62,16 @@ export async function optimizeExpression(
     }
 
     // Handle multiplication by 0
-    if (current.type === 'OPERATOR' && current.value === '*') {
+    if (
+      (current.type === 'OPERATOR' && current.value === '*') ||
+      (current.type === 'NUMBER' && current.value === '0')
+    ) {
       const next = tokens[i + 1];
-      if (next && next.type === 'NUMBER' && next.value === '0') {
+      if (
+        next &&
+        ((next.type === 'NUMBER' && next.value === '0') ||
+          (next.type === 'OPERATOR' && next.value === '*'))
+      ) {
         optimizedTokens.push({
           type: 'NUMBER',
           value: '0',
@@ -62,11 +87,17 @@ export async function optimizeExpression(
 
     // Handle addition/subtraction of 0
     if (
-      current.type === 'OPERATOR' &&
-      (current.value === '+' || current.value === '-')
+      (current.type === 'OPERATOR' &&
+        (current.value === '+' || current.value === '-')) ||
+      (current.type === 'NUMBER' && current.value === '0')
     ) {
       const next = tokens[i + 1];
-      if (next && next.type === 'NUMBER' && next.value === '0') {
+      if (
+        next &&
+        ((next.type === 'NUMBER' && next.value === '0') ||
+          (next.type === 'OPERATOR' &&
+            (next.value === '+' || next.value === '-')))
+      ) {
         optimizations.push(
           `Addition/subtraction of 0: Removed operation "${current.value}" ` +
             `at position ${current.position}`,

@@ -1,5 +1,6 @@
 import { Graph } from 'graphlib';
 import { TreeNode } from './buildTree';
+import { randomUUID } from 'node:crypto';
 
 function buildGraph(
   node: TreeNode | null,
@@ -8,8 +9,8 @@ function buildGraph(
 ): void {
   if (!node) return;
 
-  const nodeId = `${node.value}_${Math.random().toString(36).substr(2, 5)}`;
-  graph.setNode(nodeId, { label: node.value });
+  const nodeId = randomUUID();
+  graph.setNode(nodeId, { label: node.token.value });
 
   if (parent) {
     graph.setEdge(parent, nodeId);
