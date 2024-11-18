@@ -1,7 +1,7 @@
-import { getTokenType } from './getTokenType';
+import { getTokenType, TokenType } from './getTokenType';
 
 export type Token = {
-  type: string;
+  type: TokenType;
   value: string;
   position: number;
 };

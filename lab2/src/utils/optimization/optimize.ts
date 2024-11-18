@@ -1,4 +1,5 @@
 import { Token } from '../tokenization/tokenize';
+import { TokenType } from '../tokenization/getTokenType';
 
 export async function optimizeExpression(
   tokens: Token[],
@@ -29,12 +30,12 @@ async function optimizeSinglePass(
 
     // Handle unary minus
     if (
-      current.type === 'OPERATOR' &&
+      current.type === TokenType.OPERATOR &&
       current.value === '-' &&
       (i === 0 || tokens[i - 1].value === '(')
     ) {
       optimizedTokens.push({
-        type: 'NUMBER',
+        type: TokenType.NUMBER,
         value: '0',
         position: current.position,
       });
@@ -47,11 +48,11 @@ async function optimizeSinglePass(
 
     // Handle multiplication/division by 1
     if (
-      current.type === 'OPERATOR' &&
+      current.type === TokenType.OPERATOR &&
       (current.value === '*' || current.value === '/')
     ) {
       const next = tokens[i + 1];
-      if (next && next.type === 'NUMBER' && next.value === '1') {
+      if (next && next.type === TokenType.NUMBER && next.value === '1') {
         optimizations.push(
           `Multiplication/division by 1: Removed operation "${current.value}" ` +
             `at position ${current.position}`,
@@ -63,17 +64,17 @@ async function optimizeSinglePass(
 
     // Handle multiplication by 0
     if (
-      (current.type === 'OPERATOR' && current.value === '*') ||
-      (current.type === 'NUMBER' && current.value === '0')
+      (current.type === TokenType.OPERATOR && current.value === '*') ||
+      (current.type === TokenType.NUMBER && current.value === '0')
     ) {
       const next = tokens[i + 1];
       if (
         next &&
-        ((next.type === 'NUMBER' && next.value === '0') ||
-          (next.type === 'OPERATOR' && next.value === '*'))
+        ((next.type === TokenType.NUMBER && next.value === '0') ||
+          (next.type === TokenType.OPERATOR && next.value === '*'))
       ) {
         optimizedTokens.push({
-          type: 'NUMBER',
+          type: TokenType.NUMBER,
           value: '0',
           position: current.position,
         });
@@ -87,15 +88,15 @@ async function optimizeSinglePass(
 
     // Handle addition/subtraction of 0
     if (
-      (current.type === 'OPERATOR' &&
+      (current.type === TokenType.OPERATOR &&
         (current.value === '+' || current.value === '-')) ||
-      (current.type === 'NUMBER' && current.value === '0')
+      (current.type === TokenType.NUMBER && current.value === '0')
     ) {
       const next = tokens[i + 1];
       if (
         next &&
-        ((next.type === 'NUMBER' && next.value === '0') ||
-          (next.type === 'OPERATOR' &&
+        ((next.type === TokenType.NUMBER && next.value === '0') ||
+          (next.type === TokenType.OPERATOR &&
             (next.value === '+' || next.value === '-')))
       ) {
         optimizations.push(
@@ -108,11 +109,15 @@ async function optimizeSinglePass(
     }
 
     // Handle division of 0 by a variable
-    if (current.type === 'OPERATOR' && current.value === '/') {
+    if (current.type === TokenType.OPERATOR && current.value === '/') {
       const previous = tokens[i - 1];
-      if (previous && previous.type === 'NUMBER' && previous.value === '0') {
+      if (
+        previous &&
+        previous.type === TokenType.NUMBER &&
+        previous.value === '0'
+      ) {
         optimizedTokens.push({
-          type: 'NUMBER',
+          type: TokenType.NUMBER,
           value: '0',
           position: current.position,
         });
@@ -125,15 +130,15 @@ async function optimizeSinglePass(
     }
 
     // Handle constant folding
-    if (current.type === 'NUMBER') {
+    if (current.type === TokenType.NUMBER) {
       const next = tokens[i + 1];
       const afterNext = tokens[i + 2];
 
       if (
         next &&
-        next.type === 'OPERATOR' &&
+        next.type === TokenType.OPERATOR &&
         afterNext &&
-        afterNext.type === 'NUMBER'
+        afterNext.type === TokenType.NUMBER
       ) {
         const leftValue = parseFloat(current.value);
         const rightValue = parseFloat(afterNext.value);
@@ -158,7 +163,7 @@ async function optimizeSinglePass(
 
         if (!isNaN(result)) {
           optimizedTokens.push({
-            type: 'NUMBER',
+            type: TokenType.NUMBER,
             value: result.toString(),
             position: current.position,
           });

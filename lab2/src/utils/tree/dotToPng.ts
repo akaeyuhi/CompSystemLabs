@@ -33,12 +33,13 @@ export function convertDotToPng(
     );
     exec(
       `dot -Tpng ${dotFilePath} -o ${pngFilePath}`,
-      (err, stdout, stderr) => {
+      async (err, stdout, stderr) => {
         if (err) {
           return reject(`Error converting DOT to PNG: ${stderr}`);
         }
 
         console.log(`DOT converted to PNG: ${pngFilePath}`);
+        await fs.unlink(dotFilePath);
         resolve();
       },
     );
