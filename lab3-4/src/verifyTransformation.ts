@@ -79,7 +79,6 @@ export function verifyTransformation(
       console.error('Перетворення некоректне для набору змінних:', variables);
       return false;
     }
-    console.log(originalResult, transformedResult);
   }
   console.log('Перетворення коректне для всіх тестових випадків!');
   return true;
