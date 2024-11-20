@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 
 export default [{
     ignores: ["**/eslint.config.mjs"],
-}, ...compat.extends("plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"), {
+}, ...compat.extends("plugin:@typescript-eslint/recommended", "plugin:prettier/recommended", "prettier"), {
     plugins: {
         "@typescript-eslint": typescriptEslint,
     },
@@ -48,7 +48,7 @@ export default [{
         "import/no-extraneous-dependencies": "off",
 
         indent: ["error", 2, {
-            ignoredNodes: ["PropertyDefinition"],
+            ignoredNodes: ["PropertyDefinition", "CallExpression"],
             SwitchCase: 1
         }],
 
@@ -166,6 +166,7 @@ export default [{
 
         "no-confusing-arrow": ["error", {
             allowParens: false,
+            onlyOneSimpleParam: true,
         }],
 
         "no-useless-computed-key": ["error"],

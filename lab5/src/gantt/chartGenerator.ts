@@ -36,22 +36,29 @@ export function generateGanttChart(logs: LogItem[]): void {
   console.log(chalk.bold('Генерація діаграми Ганта:\n'));
 
   // Вивід шкали часу
-  console.log(chalk.bold('Часова шкала:'));
-  // eslint-disable-next-line no-confusing-arrow
   const scaleBar = Array.from({ length: availableWidth }, (_, i) =>
     i % 10 === 0 ? '|' : '-',
   ).join('');
   console.log(scaleBar);
-  console.log(
-    // eslint-disable-next-line no-confusing-arrow
-    Array.from({ length: availableWidth }, (_, i) =>
-      i % 10 === 0
-        ? `${Math.round(i * scale + timeRange)}`.padStart(4, ' ')
-        : ' ',
-    ).join(''),
+
+  const labels = Array.from({ length: availableWidth }, (_, i) =>
+    i % 10 === 0 ? `${i * scale}` : ' ',
   );
 
-  console.log(chalk.bold('\nОперації:\n'));
+  const formattedLabels = labels.map((symbol, i) =>
+    (symbol === ' ' && parseInt(labels[i + 1])) ||
+    parseInt(labels[i + 2]) ||
+    parseInt(labels[i + 2])
+      ? ''
+      : parseInt(symbol)
+        ? symbol.padStart(
+            symbol.length < 3 ? symbol.length + 1 : symbol.length,
+            ' ',
+          )
+        : symbol,
+  );
+
+  console.log(formattedLabels.join(''));
 
   // Вивід кожного елемента
   logs.forEach(log => {
