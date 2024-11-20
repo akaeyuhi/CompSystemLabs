@@ -5,8 +5,8 @@ export class Memory {
   private readonly size: number;
   private nextAvailableAddress: number;
   public delays = {
-    write: 20,
-    read: 15,
+    write: 10,
+    read: 3,
     allocate: 5,
   };
 

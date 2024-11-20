@@ -66,7 +66,7 @@ export class System {
         end: Date.now() + this.memory.delays.read,
         operation: {
           executorId: 'Memory',
-          description: `Memory Read at address ${address}: ${result ?? 'Not found'}`,
+          description: `Memory Read at address ${address} -> ${result ?? 'Not found'}`,
         },
       });
       return result;
@@ -75,18 +75,18 @@ export class System {
   }
 
   async executeExpressionTree(expressionTree: TreeNode): Promise<number> {
-    //const startTime = Date.now();
+    const startTime = Date.now();
     const result = await this.processExpression(expressionTree);
-    //const endTime = Date.now();
+    const endTime = Date.now();
 
-    // this.executionLog.push({
-    //   start: startTime,
-    //   end: endTime,
-    //   operation: {
-    //     executorId: 'System',
-    //     description: 'Expression tree execution',
-    //   },
-    // });
+    this.executionLog.push({
+      start: startTime,
+      end: endTime,
+      operation: {
+        executorId: 'System',
+        description: 'Expression tree execution',
+      },
+    });
 
     return result;
   }
@@ -134,7 +134,7 @@ export class System {
       end: Date.now() + availableProcessor.getOperationTime(op),
       operation: {
         executorId: availableProcessor.id,
-        description: `${op}(${left}, ${right}) -> Result stored at address ${resultAddress}:`,
+        description: `${op}(${left}, ${right})`,
       },
     });
 
