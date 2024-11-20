@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chalk": "^2.2.4",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
@@ -23,6 +24,7 @@
     "@types/dhtmlxgantt": "^6.0.9",
     "@types/graphlib": "^2.1.12",
     "@types/graphlib-dot": "^0.6.4",
+    "chalk": "^4.1.2",
     "dhtmlx-gantt": "^9.0.1",
     "graphlib": "^2.1.8",
     "graphlib-dot": "^0.6.4"

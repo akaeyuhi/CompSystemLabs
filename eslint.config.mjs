@@ -165,7 +165,7 @@ export default [{
         "arrow-spacing": ["error"],
 
         "no-confusing-arrow": ["error", {
-            allowParens: true,
+            allowParens: false,
         }],
 
         "no-useless-computed-key": ["error"],
