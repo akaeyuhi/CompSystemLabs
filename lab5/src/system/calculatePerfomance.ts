@@ -37,17 +37,20 @@ export class PerformanceCalculator {
   }
 
   // Calculate total memory usage (total memory read/write)
-  getMemoryUsage(): { readCount: number; writeCount: number } {
+  getMemoryUsage() {
     let readCount = 0;
     let writeCount = 0;
+    let allocateCount = 0;
     for (const log of this.system.log) {
-      if (log.operation.description.includes('Memory Read')) {
+      if (log.operation.description.includes('read')) {
         readCount++;
-      } else if (log.operation.description.includes('Memory Write')) {
+      } else if (log.operation.description.includes('write')) {
         writeCount++;
+      } else if (log.operation.description.includes('allocate')) {
+        allocateCount++;
       }
     }
-    return { readCount, writeCount };
+    return { readCount, writeCount, allocateCount };
   }
 
   // Calculate Speedup (Acceleration Coefficient)

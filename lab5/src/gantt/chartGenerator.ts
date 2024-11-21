@@ -1,13 +1,5 @@
 import chalk from 'chalk';
-
-export type LogItem = {
-  start: number;
-  end: number;
-  operation: {
-    executorId: string;
-    description: string;
-  };
-};
+import { GanttLog } from '../system/types/GanttLog';
 
 // Конфігурація кольорів для різних виконавців
 const executorColors: Record<string, chalk.Chalk> = {
@@ -19,7 +11,7 @@ const getColor = (executorId: string): chalk.Chalk =>
   executorColors[executorId] || chalk.yellow;
 
 // Функція для генерації діаграми
-export function generateGanttChart(logs: LogItem[]): void {
+export function generateGanttChart(logs: GanttLog[]): void {
   // Розрахунок часових меж
   const minTime = Math.min(...logs.map(log => log.start));
   const maxTime = Math.max(...logs.map(log => log.end));
