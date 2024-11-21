@@ -16,6 +16,12 @@ export type LogItem = {
   };
 };
 
+type MemoryOperation = {
+  operation: 'read' | 'write' | 'allocate';
+  value?: number;
+  address?: number;
+};
+
 export class System {
   public config: SystemConfig;
   private processors: Processor[];
@@ -43,23 +49,24 @@ export class System {
     this.memory = new Memory(this.config.memoryBanks);
   }
 
-  // Access memory with an operation ('read' or 'write')
-  private async accessMemory(
-    operation: 'read' | 'write',
-    address: number,
-    value?: number,
-  ): Promise<number | undefined> {
-    if (operation === 'write' && value !== undefined) {
+  // Access memory with an operation
+  private async accessMemory({
+    operation,
+    value,
+    address,
+  }: MemoryOperation): Promise<number> {
+    if (operation === 'write' && value && address) {
       await this.memory.write(address, value);
       this.executionLog.push({
         start: Date.now(),
         end: Date.now() + this.memory.delays.write,
         operation: {
           executorId: 'Memory',
-          description: `Memory Write at address ${address}: ${value}`,
+          description: `Memory Write at address ${address} -> ${value}`,
         },
       });
-    } else if (operation === 'read') {
+      return value;
+    } else if (operation === 'read' && address) {
       const result = await this.memory.read(address);
       this.executionLog.push({
         start: Date.now(),
@@ -69,9 +76,20 @@ export class System {
           description: `Memory Read at address ${address} -> ${result ?? 'Not found'}`,
         },
       });
+      return result ?? NaN;
+    } else if (operation === 'allocate' && value) {
+      const result = await this.memory.allocateMemory(value);
+      this.executionLog.push({
+        start: Date.now(),
+        end: Date.now() + this.memory.delays.allocate,
+        operation: {
+          executorId: 'Memory',
+          description: `Memory allocate at address ${result} -> ${value}`,
+        },
+      });
       return result;
     }
-    return undefined;
+    return NaN;
   }
 
   async executeExpressionTree(expressionTree: TreeNode): Promise<number> {
@@ -91,10 +109,17 @@ export class System {
     return result;
   }
 
+  private getRandomVariable() {
+    return Math.floor(Math.random() * (100 - -100 + 1) - 100);
+  }
+
   private async processExpression(node: TreeNode): Promise<number> {
     if (!node.left && !node.right) {
       return (
-        (await this.accessMemory('read', 0x100 + node.token.position)) ?? 0
+        (await this.accessMemory({
+          operation: 'read',
+          address: 0x100 + node.token.position,
+        })) ?? this.getRandomVariable()
       );
     }
 
@@ -106,7 +131,10 @@ export class System {
       rightPromise,
     ]);
 
-    const resultAddress = await this.memory.allocateMemory(node.token.position);
+    const resultAddress = await this.accessMemory({
+      operation: 'allocate',
+      value: node.token.position,
+    });
 
     return this.scheduleOperation(
       node.token.value,
@@ -114,6 +142,34 @@ export class System {
       rightResult,
       resultAddress,
     );
+  }
+
+  private generateRandomInputs() {
+    return [
+      Math.floor(Math.random() * (100 - -100 + 1) - 100),
+      Math.floor(Math.random() * (100 - -100 + 1) - 100),
+    ];
+  }
+
+  private validateInputs(left: number | undefined, right: number | undefined) {
+    let leftResult, rightResult;
+    if (left && right) {
+      leftResult = left;
+      rightResult = right;
+    }
+    if (!left && right) {
+      [leftResult] = this.generateRandomInputs();
+      rightResult = right;
+    }
+    if (!right && left) {
+      [rightResult] = this.generateRandomInputs();
+      leftResult = left;
+    }
+    if (!right && !left) {
+      [leftResult, rightResult] = this.generateRandomInputs();
+    }
+
+    return [leftResult, rightResult];
   }
 
   // Scheduling and execution logic
@@ -124,8 +180,12 @@ export class System {
     resultAddress: number,
   ): Promise<number> {
     const availableProcessor = this.getAvailableProcessor();
+    const [leftResult, rightResult] = this.validateInputs(left, right);
+
     const result = await availableProcessor.executeOperation(
-      op /*left, right*/,
+      op,
+      leftResult!,
+      rightResult!,
     );
 
     // Log the operation
@@ -134,12 +194,16 @@ export class System {
       end: Date.now() + availableProcessor.getOperationTime(op),
       operation: {
         executorId: availableProcessor.id,
-        description: `${op}(${left}, ${right})`,
+        description: `${op}(${leftResult}, ${rightResult})`,
       },
     });
 
     // Store the result in memory
-    await this.accessMemory('write', resultAddress, result);
+    await this.accessMemory({
+      operation: 'write',
+      value: result,
+      address: resultAddress,
+    });
 
     return result;
   }

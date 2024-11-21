@@ -8,23 +8,15 @@ export default class Processor {
     this.currentLoad = 0; // Initialize load to 0
   }
 
-  private generateRandomInputs() {
-    return [
-      Math.floor(Math.random() * (100 - -100 + 1) - 100),
-      Math.floor(Math.random() * (100 - -100 + 1) - 100),
-    ];
-  }
-
   async executeOperation(
     op: string,
-    // left: number,
-    // right: number,
+    left: number,
+    right: number,
   ): Promise<number> {
     const timeRequired = this.getOperationTime(op);
     this.currentLoad += timeRequired;
     await this.delay(timeRequired);
     this.currentLoad -= timeRequired;
-    const [left, right] = this.generateRandomInputs();
 
     switch (op) {
       case '+':
