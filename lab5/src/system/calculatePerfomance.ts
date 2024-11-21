@@ -9,9 +9,9 @@ export class PerformanceCalculator {
   }
 
   // Calculate total execution time of all operations
-  getTotalExecutionTime(): number {
+  getTotalExecutionTime(system = this.system): number {
     let totalTime = 0;
-    for (const log of this.system.log) {
+    for (const log of system.log) {
       totalTime += log.end - log.start;
     }
     return totalTime;
@@ -55,9 +55,9 @@ export class PerformanceCalculator {
     // Simulate the execution time with only one processor
     const singleProcessorSystem = new System();
     singleProcessorSystem.createConfig({ processors: 1 });
-    const sequentialTime =
-      await singleProcessorSystem.executeExpressionTree(executionTree);
+    await singleProcessorSystem.executeExpressionTree(executionTree);
 
+    const sequentialTime = this.getTotalExecutionTime(singleProcessorSystem);
     const parallelTime = this.getTotalExecutionTime();
 
     return sequentialTime / parallelTime;

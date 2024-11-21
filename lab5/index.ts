@@ -14,10 +14,11 @@ async function main() {
   if (results.validness) {
     const expressionTree = (await buildExpressionTree(postfixTokens))!;
     await system.executeExpressionTree(expressionTree);
+    const executionTime = analyzer.getTotalExecutionTime();
     const speedUp = await analyzer.getSpeedup(expressionTree);
     const efficiency = await analyzer.getEfficiency(expressionTree);
     console.log(`System analysis result: 
-    Total execution time: ${analyzer.getTotalExecutionTime()} ms
+    Total execution time: ${executionTime} ms
     System speedUp: ${speedUp}
     System efficiency: ${efficiency}`);
     console.log('Processor utilization:', analyzer.getProcessorUtilization());
