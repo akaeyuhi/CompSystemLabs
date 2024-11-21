@@ -1,37 +1,22 @@
 import { TreeNode } from 'lab2/src/utils/tree/buildTree';
 import Processor from './processor';
 import { Memory } from './memory';
-
-type SystemConfig = {
-  processors: number;
-  memoryBanks: number;
-};
-
-export type LogItem = {
-  start: number;
-  end: number;
-  operation: {
-    executorId: string;
-    description: string;
-  };
-};
-
-type MemoryOperation = {
-  operation: 'read' | 'write' | 'allocate';
-  value?: number;
-  address?: number;
-};
+import { GanttLog } from './types/GanttLog';
+import { SystemConfig } from 'lab5/src/system/types/SystemConfig';
+import { MemoryOperation } from 'lab5/src/system/types/MemoryOperation';
+import { Instruction } from 'lab5/src/system/types/Instruction';
 
 export class System {
   public config: SystemConfig;
   private processors: Processor[];
   private memory: Memory;
-  private readonly executionLog: LogItem[]; // For Gantt chart data
+  private readonly executionLog: GanttLog[]; // For Gantt chart data
+  private lastUsedProcessorIndex: number = 0;
 
   constructor() {
-    this.config = { processors: 5, memoryBanks: 1 };
+    this.config = { processors: 5, memorySlots: 100 };
     this.processors = [];
-    this.memory = new Memory(this.config.memoryBanks);
+    this.memory = new Memory(this.config.memorySlots);
     this.executionLog = [];
     this.initializeSystem();
   }
@@ -46,181 +31,126 @@ export class System {
       { length: this.config.processors },
       () => new Processor(),
     );
-    this.memory = new Memory(this.config.memoryBanks);
+    this.memory = new Memory(this.config.memorySlots);
   }
 
-  // Access memory with an operation
   private async accessMemory({
     operation,
     value,
     address,
   }: MemoryOperation): Promise<number> {
+    const start = Date.now();
+
+    let result: number | undefined = NaN;
     if (operation === 'write' && value && address) {
-      const start = Date.now();
       await this.memory.write(address, value);
-      const end = Date.now();
-      this.executionLog.push({
-        start,
-        end,
-        operation: {
-          executorId: 'Memory',
-          description: `Memory Write at address ${address} -> ${value}`,
-        },
-      });
-      return value;
     } else if (operation === 'read' && address) {
-      const start = Date.now();
-      const result = await this.memory.read(address);
-      const end = Date.now();
-      this.executionLog.push({
-        start,
-        end,
-        operation: {
-          executorId: 'Memory',
-          description: `Memory Read at address ${address} -> ${result ?? 'Not found'}`,
-        },
-      });
-      return result ?? NaN;
+      result = await this.memory.read(address);
     } else if (operation === 'allocate' && value) {
-      const start = Date.now();
-      const result = await this.memory.allocateMemory(value);
-      const end = Date.now();
-      this.executionLog.push({
-        start,
-        end,
-        operation: {
-          executorId: 'Memory',
-          description: `Memory allocate at address ${result} -> ${value}`,
-        },
-      });
+      result = await this.memory.allocateMemory(value);
+    } else {
       return result;
     }
-    return NaN;
-  }
 
-  async executeExpressionTree(expressionTree: TreeNode): Promise<number> {
-    const startTime = Date.now();
-    const result = await this.processExpression(expressionTree);
-    const endTime = Date.now();
-
-    this.executionLog.push({
-      start: startTime,
-      end: endTime,
-      operation: {
-        executorId: 'System',
-        description: 'Expression tree execution',
-      },
-    });
-
-    return result;
-  }
-
-  private getRandomVariable() {
-    return Math.floor(Math.random() * (100 - -100 + 1) - 100);
-  }
-
-  private async processExpression(node: TreeNode): Promise<number> {
-    if (!node.left && !node.right) {
-      return (
-        (await this.accessMemory({
-          operation: 'read',
-          address: 0x100 + node.token.position,
-        })) ?? this.getRandomVariable()
-      );
-    }
-
-    const leftPromise = this.processExpression(node.left!);
-    const rightPromise = this.processExpression(node.right!);
-
-    const [leftResult, rightResult] = await Promise.all([
-      leftPromise,
-      rightPromise,
-    ]);
-
-    const resultAddress = await this.accessMemory({
-      operation: 'allocate',
-      value: node.token.position,
-    });
-
-    return this.scheduleOperation(
-      node.token.value,
-      leftResult,
-      rightResult,
-      resultAddress,
-    );
-  }
-
-  private generateRandomInputs() {
-    return [
-      Math.floor(Math.random() * (100 - -100 + 1) - 100),
-      Math.floor(Math.random() * (100 - -100 + 1) - 100),
-    ];
-  }
-
-  private validateInputs(left: number | undefined, right: number | undefined) {
-    let leftResult, rightResult;
-    if (left && right) {
-      leftResult = left;
-      rightResult = right;
-    }
-    if (!left && right) {
-      [leftResult] = this.generateRandomInputs();
-      rightResult = right;
-    }
-    if (!right && left) {
-      [rightResult] = this.generateRandomInputs();
-      leftResult = left;
-    }
-    if (!right && !left) {
-      [leftResult, rightResult] = this.generateRandomInputs();
-    }
-
-    return [leftResult, rightResult];
-  }
-
-  // Scheduling and execution logic
-  private async scheduleOperation(
-    op: string,
-    left: number | undefined,
-    right: number | undefined,
-    resultAddress: number,
-  ): Promise<number> {
-    const availableProcessor = this.getAvailableProcessor();
-    const [leftResult, rightResult] = this.validateInputs(left, right);
-
-    const start = Date.now();
-    const result = await availableProcessor.executeOperation(
-      op,
-      leftResult!,
-      rightResult!,
-    );
     const end = Date.now();
-
-    // Log the operation
     this.executionLog.push({
       start,
       end,
       operation: {
-        executorId: availableProcessor.id,
-        description: `${op}(${leftResult}, ${rightResult})`,
+        executorId: 'Memory',
+        description: `${operation} at address ${(address ? address : result) ?? 'N/A'}`,
       },
     });
 
-    // Store the result in memory
-    await this.accessMemory({
-      operation: 'write',
-      value: result,
-      address: resultAddress,
-    });
-
-    return result;
+    return result ?? NaN;
   }
 
-  private lastUsedProcessorIndex: number = 0;
+  private async compileToInstructionWords(
+    expressionTree: TreeNode,
+  ): Promise<Instruction[]> {
+    const instructions: Instruction[] = [];
+
+    const traverse = async (node: TreeNode): Promise<number> => {
+      if (!node.left && !node.right) {
+        // Leaf node: return its position in memory
+        return node.token.position;
+      }
+
+      const leftDest = await traverse(node.left!);
+      const rightDest = await traverse(node.right!);
+
+      const destination = await this.accessMemory({
+        operation: 'allocate',
+        value: instructions.length,
+      });
+      instructions.push({
+        op: node.token.value,
+        leftOperand: leftDest,
+        rightOperand: rightDest,
+        destination,
+      });
+
+      return destination;
+    };
+
+    await traverse(expressionTree);
+    return instructions;
+  }
+
+  private scheduleInstructionWords(
+    instructions: Instruction[],
+  ): Instruction[][] {
+    const instructionWords: Instruction[][] = [];
+    const processorCount = this.config.processors;
+
+    let currentWord: Instruction[] = [];
+    instructions.forEach((instruction, index) => {
+      if (currentWord.length < processorCount) {
+        currentWord.push(instruction);
+      }
+      if (
+        currentWord.length === processorCount ||
+        index === instructions.length - 1
+      ) {
+        instructionWords.push(currentWord);
+        currentWord = [];
+      }
+    });
+
+    return instructionWords;
+  }
+
+  private async executeInstructionWords(instructionWords: Instruction[][]) {
+    for (const word of instructionWords) {
+      await Promise.all(
+        word.map(async instruction => {
+          const processor = this.getAvailableProcessor();
+          const start = Date.now();
+          const result = await processor.executeOperation(instruction);
+          const end = Date.now();
+          this.executionLog.push({
+            start,
+            end,
+            operation: {
+              executorId: processor.id,
+              description:
+                `${instruction.op}(${instruction.leftOperand}, ${instruction.rightOperand})` +
+                ` -> ${result}`,
+            },
+          });
+          await this.accessMemory({
+            operation: 'write',
+            value: result,
+            address: instruction.destination,
+          });
+        }),
+      );
+    }
+  }
 
   private getAvailableProcessor(): Processor {
     const sortedProcessors = this.processors.sort(
-      (a, b) => a.getCurrentLoad() - b.getCurrentLoad(),
+      (a, b) => a.processorLoad - b.processorLoad,
     );
 
     for (let i = 0; i < sortedProcessors.length; i++) {
@@ -228,7 +158,7 @@ export class System {
         (this.lastUsedProcessorIndex + i) % sortedProcessors.length;
       const processor = sortedProcessors[processorIndex];
 
-      if (processor.getCurrentLoad() < this.getLoadThreshold()) {
+      if (!processor.isBusy()) {
         this.lastUsedProcessorIndex = processorIndex; // Update last used
         return processor;
       }
@@ -237,8 +167,17 @@ export class System {
     return sortedProcessors[0];
   }
 
-  private getLoadThreshold(): number {
-    return 100;
+  async executeExpressionTree(expressionTree: TreeNode): Promise<number> {
+    const instructions = await this.compileToInstructionWords(expressionTree);
+    const instructionWords = this.scheduleInstructionWords(instructions);
+
+    await this.executeInstructionWords(instructionWords);
+
+    const finalInstruction = instructions[instructions.length - 1];
+    return await this.accessMemory({
+      operation: 'read',
+      address: finalInstruction.destination,
+    });
   }
 
   get log() {
