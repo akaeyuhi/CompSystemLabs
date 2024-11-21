@@ -56,10 +56,12 @@ export class System {
     address,
   }: MemoryOperation): Promise<number> {
     if (operation === 'write' && value && address) {
+      const start = Date.now();
       await this.memory.write(address, value);
+      const end = Date.now();
       this.executionLog.push({
-        start: Date.now(),
-        end: Date.now() + this.memory.delays.write,
+        start,
+        end,
         operation: {
           executorId: 'Memory',
           description: `Memory Write at address ${address} -> ${value}`,
@@ -67,10 +69,12 @@ export class System {
       });
       return value;
     } else if (operation === 'read' && address) {
+      const start = Date.now();
       const result = await this.memory.read(address);
+      const end = Date.now();
       this.executionLog.push({
-        start: Date.now(),
-        end: Date.now() + this.memory.delays.read,
+        start,
+        end,
         operation: {
           executorId: 'Memory',
           description: `Memory Read at address ${address} -> ${result ?? 'Not found'}`,
@@ -78,10 +82,12 @@ export class System {
       });
       return result ?? NaN;
     } else if (operation === 'allocate' && value) {
+      const start = Date.now();
       const result = await this.memory.allocateMemory(value);
+      const end = Date.now();
       this.executionLog.push({
-        start: Date.now(),
-        end: Date.now() + this.memory.delays.allocate,
+        start,
+        end,
         operation: {
           executorId: 'Memory',
           description: `Memory allocate at address ${result} -> ${value}`,
@@ -182,16 +188,18 @@ export class System {
     const availableProcessor = this.getAvailableProcessor();
     const [leftResult, rightResult] = this.validateInputs(left, right);
 
+    const start = Date.now();
     const result = await availableProcessor.executeOperation(
       op,
       leftResult!,
       rightResult!,
     );
+    const end = Date.now();
 
     // Log the operation
     this.executionLog.push({
-      start: Date.now(),
-      end: Date.now() + availableProcessor.getOperationTime(op),
+      start,
+      end,
       operation: {
         executorId: availableProcessor.id,
         description: `${op}(${leftResult}, ${rightResult})`,
