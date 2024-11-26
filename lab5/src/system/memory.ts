@@ -101,13 +101,13 @@ export class Memory {
     return (this.storage.size / this.size) * 100;
   }
 
-  /**
-   * Configures memory delays for read, write, and allocate operations.
-   * @param newDelays - An object with updated delay values.
-   */
-  configureDelays(newDelays: Partial<typeof this.delays>): void {
-    this.delays = { ...this.delays, ...newDelays };
-  }
+  // /**
+  //  * Configures memory delays for read, write, and allocate operations.
+  //  * @param newDelays - An object with updated delay values.
+  //  */
+  // configureDelays(newDelays: Partial<typeof this.delays>): void {
+  //   this.delays = { ...this.delays, ...newDelays };
+  // }
 
   /**
    * Simulates a delay in memory operations.
