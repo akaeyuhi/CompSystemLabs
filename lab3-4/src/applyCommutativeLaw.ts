@@ -1,52 +1,53 @@
 import { TreeNode } from '../../lab2/src/utils/tree/buildTree';
-import { isCommutative } from './utils/isCommutative';
-import { getNodeWeight } from './utils/getNodeWeight';
 import { TokenType } from '../../lab2/src/utils/tokenization/getTokenType';
+import { deduplicateTreeNodes } from './utils/dublicateTreeNodes';
 
-export async function applyCommutativeLaw(node: TreeNode): Promise<TreeNode> {
-  if (!node.left || !node.right) return node; // Лист або односторонній вузол
-
-  if (isCommutative(node.token.value)) {
-    // Зібрати всі терми
-    const terms: TreeNode[] = await collectTerms(node, node.token.value);
-
-    // Сортувати терми за вагою
-    terms.sort((a, b) => getNodeWeight(a) - getNodeWeight(b));
-
-    // Побудувати збалансоване дерево
-    return buildBalancedTree(terms, node.token.value);
+export async function applyCommutativeLaw(node: TreeNode): Promise<TreeNode[]> {
+  if (!node || node.token.type !== TokenType.OPERATOR) {
+    return [node]; // Base case: return the node unchanged as a single equivalent form
   }
 
-  // Рекурсивно обробити піддерева
-  node.left = await applyCommutativeLaw(node.left);
-  node.right = await applyCommutativeLaw(node.right);
-  return node;
-}
+  const operator = node.token.value;
+  const isCommutative = operator === '+' || operator === '*';
 
-// Збирає всі терми з піддерева для комутативної операції
-async function collectTerms(
-  node: TreeNode,
-  operation: string,
-): Promise<TreeNode[]> {
-  if (!node.left || !node.right || node.token.value !== operation)
-    return [node];
-  return [
-    ...(await collectTerms(node.left, operation)),
-    ...(await collectTerms(node.right, operation)),
-  ];
-}
+  // Recursively apply the commutative law to subtrees
+  const leftForms = node.left ? await applyCommutativeLaw(node.left) : [];
+  const rightForms = node.right ? await applyCommutativeLaw(node.right) : [];
 
-// Побудова збалансованого дерева
-async function buildBalancedTree(
-  terms: TreeNode[],
-  operation: string,
-): Promise<TreeNode> {
-  if (terms.length === 1) return terms[0];
+  const results: TreeNode[] = [];
 
-  const mid = Math.floor(terms.length / 2);
-  return {
-    token: { value: operation, type: TokenType.OPERATOR, position: -1 },
-    left: await buildBalancedTree(terms.slice(0, mid), operation),
-    right: await buildBalancedTree(terms.slice(mid), operation),
-  };
+  if (isCommutative) {
+    // Generate all permutations of the commutative operation
+    for (const left of leftForms) {
+      for (const right of rightForms) {
+        // Original order
+        results.push({
+          token: { ...node.token },
+          left,
+          right,
+        });
+
+        // Swapped order
+        results.push({
+          token: { ...node.token },
+          left: right,
+          right: left,
+        });
+      }
+    }
+  } else {
+    // Non-commutative: preserve the original order
+    for (const left of leftForms) {
+      for (const right of rightForms) {
+        results.push({
+          token: { ...node.token },
+          left,
+          right,
+        });
+      }
+    }
+  }
+
+  // Deduplicate the results (avoiding identical subtrees in the output)
+  return deduplicateTreeNodes(results);
 }

@@ -1,5 +1,5 @@
-import { TokenType } from '../../lab2/src/utils/tokenization/getTokenType';
-import { TreeNode } from '../../lab2/src/utils/tree/buildTree';
+import { TokenType } from '../../../lab2/src/utils/tokenization/getTokenType';
+import { TreeNode } from '../../../lab2/src/utils/tree/buildTree';
 
 // Перетворення дерева в інфіксний вираз
 export function treeToInfix(node: TreeNode): string {
@@ -51,6 +51,7 @@ function evaluateTree(
 export function verifyTransformation(
   originalTree: TreeNode,
   transformedTree: TreeNode,
+  stringExpression: string,
   testCases: number = 10,
 ): boolean {
   for (let i = 0; i < testCases; i++) {
@@ -76,10 +77,12 @@ export function verifyTransformation(
 
     // Порівняння результатів
     if (Math.abs(originalResult - transformedResult) > 1e-6) {
-      console.error('Перетворення некоректне для набору змінних:', variables);
+      console.error(
+        `Conversion of ${stringExpression} is incorrect for set of variables`,
+        variables,
+      );
       return false;
     }
   }
-  console.log('Перетворення коректне для всіх тестових випадків!');
   return true;
 }
