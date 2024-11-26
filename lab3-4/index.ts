@@ -6,7 +6,7 @@ import {
   convertDotToPng,
   prepareOutput,
 } from '../lab2/src/utils/tree/dotToPng';
-//import { applyCommutativeLaw } from './src/applyCommutativeLaw';
+import { applyCommutativeLaw } from './src/applyCommutativeLaw';
 import { applyDistributiveLaw } from './src/applyDistributiveLaw';
 import { processResults } from './src/utils/processResults';
 
@@ -19,20 +19,20 @@ async function applyLaws(expressions: string[]) {
       const { results, postfixTokens } = await parse(tokens);
       if (results.validness) {
         const expressionTree = await buildExpressionTree(postfixTokens);
-        //const commutativeTrees = await applyCommutativeLaw(expressionTree!);
+        const commutativeTrees = await applyCommutativeLaw(expressionTree!);
         const distributiveTrees = await applyDistributiveLaw(expressionTree!);
         const graph = outputTreeGraph(expressionTree);
         await convertDotToPng(
           graph!,
           `graph${expressions.indexOf(expression)}`,
         );
-        // await processResults(
-        //   'Commutative',
-        //   expressionTree!,
-        //   commutativeTrees,
-        //   expression,
-        //   expressions.indexOf(expression),
-        // );
+        await processResults(
+          'Commutative',
+          expressionTree!,
+          commutativeTrees,
+          expression,
+          expressions.indexOf(expression),
+        );
         await processResults(
           'Distributive',
           expressionTree!,
