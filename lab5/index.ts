@@ -10,9 +10,9 @@ async function main() {
   const system = new System();
   const analyzer = new PerformanceCalculator(system);
   const tokens = await tokenize(expression); // tokenization
-  const { results, postfixTokens } = await parse(tokens);
+  const { results, optimizedTokens } = await parse(tokens);
   if (results.validness) {
-    const expressionTree = (await buildExpressionTree(postfixTokens))!;
+    const expressionTree = (await buildExpressionTree(optimizedTokens))!;
     await system.executeExpressionTree(expressionTree);
     const executionTime = analyzer.getTotalExecutionTime();
     const speedUp = await analyzer.getSpeedup(expressionTree);

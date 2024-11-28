@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import { GanttLog } from '../system/types/GanttLog';
 
-// Конфігурація кольорів для різних виконавців
 const executorColors: Record<string, chalk.Chalk> = {
   Memory: chalk.green,
   System: chalk.blue,
@@ -10,18 +9,15 @@ const executorColors: Record<string, chalk.Chalk> = {
 const getColor = (executorId: string): chalk.Chalk =>
   executorColors[executorId] || chalk.yellow;
 
-// Функція для генерації діаграми
 export function generateGanttChart(logs: GanttLog[]): void {
   // Розрахунок часових меж
   const minTime = Math.min(...logs.map(log => log.start));
   const maxTime = Math.max(...logs.map(log => log.end));
   const timeRange = maxTime - minTime;
 
-  // Отримання доступної ширини термінала
   const terminalWidth = Math.max(process.stdout.columns || 80, 20); // Мінімум 20 символів
   const availableWidth = terminalWidth - 30; // Враховуємо місце для тексту
 
-  // Масштаб: 1 символ = кількість мс
   const scale =
     timeRange > availableWidth ? Math.ceil(timeRange / availableWidth) : 1;
 
@@ -52,7 +48,6 @@ export function generateGanttChart(logs: GanttLog[]): void {
 
   console.log(formattedLabels.join(''));
 
-  // Вивід кожного елемента
   logs.forEach(log => {
     const color = getColor(log.operation.executorId);
     const startPos = Math.round((log.start - minTime) / scale);

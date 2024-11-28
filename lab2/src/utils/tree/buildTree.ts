@@ -1,6 +1,7 @@
 import { Token } from '../tokenization/tokenize';
 import { TokenType } from '../tokenization/getTokenType';
 import { optimizeExpressionTree } from './optimizeTree';
+import { infixToPostfix } from './postfixConversion';
 
 export type TreeNode = {
   token: Token;
@@ -12,8 +13,9 @@ export async function buildExpressionTree(
   tokens: Token[],
 ): Promise<TreeNode | null> {
   const stack: TreeNode[] = [];
+  const postfix = await infixToPostfix(tokens);
 
-  for (const token of tokens) {
+  for (const token of postfix) {
     if (token.type === TokenType.NUMBER || token.type === TokenType.VARIABLE) {
       stack.push({ token });
     } else if (token.type === TokenType.OPERATOR) {

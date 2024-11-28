@@ -9,9 +9,9 @@ async function parseExpression(expressions: string[]) {
     console.log(`Expression analysis: ${expression}`);
     try {
       const tokens = await tokenize(expression); // tokenization
-      const { results, postfixTokens } = await parse(tokens);
+      const { results, optimizedTokens } = await parse(tokens);
       if (results.validness) {
-        const expressionTree = await buildExpressionTree(postfixTokens);
+        const expressionTree = await buildExpressionTree(optimizedTokens);
         const graph = outputTreeGraph(expressionTree);
         await convertDotToPng(
           graph!,
