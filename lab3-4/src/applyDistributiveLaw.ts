@@ -21,7 +21,6 @@ export async function applyDistributiveLaw(
     }
   }
 
-  // Full Distributive Transformations
   if (
     node.token.value === '*' &&
     (node.right?.token.value === '+' || node.right?.token.value === '-')
@@ -75,6 +74,37 @@ export async function applyDistributiveLaw(
             },
             right: {
               token: { type: TokenType.OPERATOR, value: '*', position: -1 },
+              left: leftRight,
+              right,
+            },
+          };
+
+          results.push(...(await applyDistributiveLaw(transformedNode)));
+        }
+      }
+    }
+  }
+
+  if (
+    node.token.value === '/' &&
+    (node.left?.token.value === '+' || node.left?.token.value === '-')
+  ) {
+    for (const right of rightForms) {
+      for (const leftLeft of await applyDistributiveLaw(node.left.left!)) {
+        for (const leftRight of await applyDistributiveLaw(node.left.right!)) {
+          const transformedNode: TreeNode = {
+            token: {
+              type: TokenType.OPERATOR,
+              value: node.left?.token.value,
+              position: -1,
+            },
+            left: {
+              token: { type: TokenType.OPERATOR, value: '/', position: -1 },
+              left: leftLeft,
+              right,
+            },
+            right: {
+              token: { type: TokenType.OPERATOR, value: '/', position: -1 },
               left: leftRight,
               right,
             },
