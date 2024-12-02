@@ -2,20 +2,12 @@ import { TreeNode } from '../../lab2/src/utils/tree/buildTree';
 import { TokenType } from '../../lab2/src/utils/tokenization/getTokenType';
 
 export async function applyCommutativeLaw(
-  root: TreeNode | null,
-): Promise<TreeNode | null> {
-  if (!root) return null;
-
-  // Apply commutative law and rebuild the tree with minimum height
-  return reorderCommutative(root);
-}
-
-async function reorderCommutative(node: TreeNode): Promise<TreeNode> {
+  node: TreeNode,
+): Promise<TreeNode | undefined> {
   if (!node) return node;
-
   // Recursively process child nodes
-  const left = node.left ? await reorderCommutative(node.left) : undefined;
-  const right = node.right ? await reorderCommutative(node.right) : undefined;
+  const left = node.left ? await applyCommutativeLaw(node.left) : undefined;
+  const right = node.right ? await applyCommutativeLaw(node.right) : undefined;
 
   if (node.token.type === TokenType.OPERATOR) {
     if (isCommutative(node.token.value)) {
