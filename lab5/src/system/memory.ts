@@ -26,7 +26,7 @@ export class Memory {
    * @throws MemoryError if the address is invalid.
    */
   async write(address: number, value: number): Promise<void> {
-    if (address < 0 || address >= this.size) {
+    if (address < 0 || address >= 0x100 + this.size) {
       throw new MemoryError(`Invalid memory address: ${address}`);
     }
     await this.delay(this.delays.write);
@@ -40,7 +40,7 @@ export class Memory {
    * @throws MemoryError if the address is invalid.
    */
   async read(address: number): Promise<number | undefined> {
-    if (address < 0 || address >= this.size) {
+    if (address < 0 || address >= 0x100 + this.size) {
       throw new MemoryError(`Invalid memory address: ${address}`);
     }
     await this.delay(this.delays.read);

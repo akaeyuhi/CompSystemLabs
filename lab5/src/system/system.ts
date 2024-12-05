@@ -10,7 +10,7 @@ export class System {
   public config: SystemConfig;
   private processors: Processor[];
   private memory: Memory;
-  private readonly executionLog: GanttLog[]; // For Gantt chart data
+  private executionLog: GanttLog[]; // For Gantt chart data
   private lastUsedProcessorIndex: number = 0;
 
   constructor() {
@@ -182,5 +182,13 @@ export class System {
 
   get log() {
     return this.executionLog;
+  }
+
+  clearLog() {
+    this.executionLog = [];
+  }
+
+  clearMemory() {
+    this.memory.clearMemory();
   }
 }

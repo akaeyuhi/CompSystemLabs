@@ -1,17 +1,21 @@
 import { System } from './system';
-import { TreeNode } from 'lab2/src/utils/tree/buildTree';
+import { TreeNode } from '../../../lab2/src/utils/tree/buildTree';
+import { GanttLog } from './types/GanttLog';
+import { SequentialExecutor } from './sequentialSystem';
 
 export class PerformanceCalculator {
   private system: System;
+  private sequentialSystem: SequentialExecutor;
 
   constructor(system: System) {
     this.system = system;
+    this.sequentialSystem = new SequentialExecutor();
   }
 
   // Calculate total execution time of all operations
-  getTotalExecutionTime(system = this.system): number {
+  getTotalExecutionTime(ganttLog: GanttLog[] = this.system.log): number {
     let totalTime = 0;
-    for (const log of system.log) {
+    for (const log of ganttLog) {
       totalTime += log.end - log.start;
     }
     return totalTime;
@@ -55,12 +59,15 @@ export class PerformanceCalculator {
 
   // Calculate Speedup (Acceleration Coefficient)
   async getSpeedup(executionTree: TreeNode): Promise<number> {
+    this.sequentialSystem.clearExecutionLog();
     // Simulate the execution time with only one processor
-    const singleProcessorSystem = new System();
-    singleProcessorSystem.createConfig({ processors: 1 });
-    await singleProcessorSystem.executeExpressionTree(executionTree);
+    await this.sequentialSystem.executeExpressionTreeSequentially(
+      executionTree,
+    );
 
-    const sequentialTime = this.getTotalExecutionTime(singleProcessorSystem);
+    const sequentialTime = this.getTotalExecutionTime(
+      this.sequentialSystem.log,
+    );
     const parallelTime = this.getTotalExecutionTime();
 
     return sequentialTime / parallelTime;
